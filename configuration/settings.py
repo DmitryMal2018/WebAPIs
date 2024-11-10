@@ -130,7 +130,11 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         # Класс разрешения AllowAny разрешает неограниченный доступ, независимо от того,
         # был ли запрос аутентифицирован или неаутентифицирован.
-        "rest_framework.permissions.AllowAny",
+        # "rest_framework.permissions.AllowAny",
+        # Класс разрешения IsAuthenticated: неавторизованные пользователи могут
+        # просматривать любые страницы, аутентифицированные пользователи имеют
+        # права на запись, редактирование или удаление.
+        "rest_framework.permissions.IsAuthenticated",
     ],
 }
 
