@@ -26,15 +26,23 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     # Сторонние приложения
     "rest_framework",
+    "rest_framework.authtoken",
     "corsheaders",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
     # Локальные приложения
     "accounts.apps.AccountsConfig",
     "posts.apps.PostsConfig",
 ]
 
 
+# Список активизированных промежуточных ПО для использования.
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -44,6 +52,8 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    # Добавим промежуточное ПО для учетной записи:
+    "allauth.account.middleware.AccountMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -136,6 +146,14 @@ REST_FRAMEWORK = {
         # права на запись, редактирование или удаление.
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        # Cхема аутентификации использует для аутентификации стандартный сессионный бэкенд Django.
+        "rest_framework.authentication.SessionAuthentication",
+        # Схема аутентификации использует базовую аутентификацию HTTP, подписанную на имя пользователя и пароль.
+        # "rest_framework.authentication.BasicAuthentication",
+        # Аутентификация с помощью токенов.
+        "rest_framework.authentication.TokenAuthentication",
+    ],
 }
 
 
@@ -150,3 +168,11 @@ CORS_ORIGIN_WHITELIST = [
 
 # Список доверенных источников для небезопасных запросов.
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
+
+
+# Конфигурация django-allauth
+# Бэкенд, который будет использоваться для отправки электронной почты.
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# Целочисленный идентификатор текущего сайта в таблице базы данных django_site.
+# Данные приложения могут подключаться к определенным сайтам, а одна база данных могла управлять содержимым нескольких сайтов.
+SITE_ID = 1
