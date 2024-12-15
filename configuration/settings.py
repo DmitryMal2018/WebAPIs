@@ -2,24 +2,29 @@ from pathlib import Path
 from environs import Env
 
 env = Env()
+
+
+# Установка переменных окружения. Возьмем переменные окружения из файла .env
 env.read_env()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+# Установка переменных окружения. Установка базового каталога проекта
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# Установка переменных окружения. Берем секретный ключ из файла .env
+# SECRET_KEY = ("django-insecure-p8b=sc$o$!2g+dbuqw6@pn@d7a!-2&3i4%!+edmzgk!)hp5pwh")
+SECRET_KEY = env.str("SECRET_KEY")
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = (
-    "django-insecure-p8b=sc$o$!2g+dbuqw6@pn@d7a!-2&3i4%!+edmzgk!)hp5pwh"
-)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Установка переменных окружения. Получаем из файла .env информацию о том, ведем ли мы отладку или нет
+# DEBUG = True
+DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = []
+
+# Список строк, представляющих имена хостов/доменов, которые может обслуживать этот Django-сайт
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Список строк, обозначающих все приложения, которые включены в данной установке Django.
@@ -29,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "django.contrib.sites",
     # Сторонние приложения
@@ -51,6 +57,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # Настройка сервиса статических файлов whitenoise
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     # Настройка механизма в FastAPI приложении
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -62,8 +70,11 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 ROOT_URLCONF = "configuration.urls"
 
+
+# Список, содержащий настройки для всех шаблонизаторов, используемых в Django.
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -83,14 +94,10 @@ TEMPLATES = [
 WSGI_APPLICATION = "configuration.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
+# База данных
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    # "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3",}
+    "default": env.dj_db_url("DATABASE_URL")
 }
 
 
@@ -125,10 +132,16 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
+# Статические файлы. URL-маршрут, используемый при обращении к статическим файлам (CSS, JavaScript, Images).
 STATIC_URL = "static/"
+# Хранилище файлов, которое будет использоваться при сборе статических файлов с помощью команды collectstatic
+STATICFILES_DIRS = [BASE_DIR / "static"]
+# Команда управления для сбора статических файлов в одну директорию, чтобы легко их обслуживать
+STATIC_ROOT = BASE_DIR / "staticfiles"
+# Механизм хранения файлов, используемый при сборе статических файлов командой collectstatic
+# STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
